@@ -73,11 +73,13 @@
 #include "opencv2/video/tracking.hpp"
 #include "opencv2/video/background_segm.hpp"
 #include "opencv2/objdetect.hpp"
+#include "System.h"
 
 #include <emscripten/bind.h>
 
 using namespace emscripten;
 using namespace cv;
+using namespace ORB_SLAM2;
 
 namespace binding_utils
 {
@@ -303,6 +305,10 @@ namespace binding_utils
         result.call<void>("push", arg2);
         return result;
     }
+
+    ORB_SLAM2::System* createSystem(const string &strVocFile, const string &strSettingsFile, const int sensor) {
+        return new ORB_SLAM2::System(strVocFile, strSettingsFile, System::eSensor(sensor));
+    }
 }
 
 EMSCRIPTEN_BINDINGS(binding_utils)
@@ -454,9 +460,9 @@ EMSCRIPTEN_BINDINGS(binding_utils)
         .field("size", &cv::RotatedRect::size)
         .field("angle", &cv::RotatedRect::angle);
 
-    function("rotatedRectPoints", select_overload<emscripten::val(const cv::RotatedRect&)>(&binding_utils::rotatedRectPoints));
-    function("rotatedRectBoundingRect", select_overload<Rect(const cv::RotatedRect&)>(&binding_utils::rotatedRectBoundingRect));
-    function("rotatedRectBoundingRect2f", select_overload<Rect2f(const cv::RotatedRect&)>(&binding_utils::rotatedRectBoundingRect2f));
+    emscripten::function("rotatedRectPoints", select_overload<emscripten::val(const cv::RotatedRect&)>(&binding_utils::rotatedRectPoints));
+    emscripten::function("rotatedRectBoundingRect", select_overload<Rect(const cv::RotatedRect&)>(&binding_utils::rotatedRectBoundingRect));
+    emscripten::function("rotatedRectBoundingRect2f", select_overload<Rect2f(const cv::RotatedRect&)>(&binding_utils::rotatedRectBoundingRect2f));
 
     emscripten::value_array<cv::Scalar_<double>> ("Scalar")
         .element(index<0>())
@@ -500,19 +506,19 @@ EMSCRIPTEN_BINDINGS(binding_utils)
         .field("nu12", &cv::Moments::nu12)
         .field("nu03", &cv::Moments::nu03);
 
-    function("minEnclosingCircle", select_overload<binding_utils::Circle(const cv::Mat&)>(&binding_utils::minEnclosingCircle));
+    emscripten::function("minEnclosingCircle", select_overload<binding_utils::Circle(const cv::Mat&)>(&binding_utils::minEnclosingCircle));
 
-    function("minMaxLoc", select_overload<binding_utils::MinMaxLoc(const cv::Mat&, const cv::Mat&)>(&binding_utils::minMaxLoc));
+    emscripten::function("minMaxLoc", select_overload<binding_utils::MinMaxLoc(const cv::Mat&, const cv::Mat&)>(&binding_utils::minMaxLoc));
 
-    function("minMaxLoc", select_overload<binding_utils::MinMaxLoc(const cv::Mat&)>(&binding_utils::minMaxLoc_1));
+    emscripten::function("minMaxLoc", select_overload<binding_utils::MinMaxLoc(const cv::Mat&)>(&binding_utils::minMaxLoc_1));
 
-    function("morphologyDefaultBorderValue", &cv::morphologyDefaultBorderValue);
+    emscripten::function("morphologyDefaultBorderValue", &cv::morphologyDefaultBorderValue);
 
-    function("CV_MAT_DEPTH", &binding_utils::cvMatDepth);
+    emscripten::function("CV_MAT_DEPTH", &binding_utils::cvMatDepth);
 
-    function("CamShift", select_overload<emscripten::val(const cv::Mat&, Rect&, TermCriteria)>(&binding_utils::CamShiftWrapper));
+    emscripten::function("CamShift", select_overload<emscripten::val(const cv::Mat&, Rect&, TermCriteria)>(&binding_utils::CamShiftWrapper));
 
-    function("meanShift", select_overload<emscripten::val(const cv::Mat&, Rect&, TermCriteria)>(&binding_utils::meanShiftWrapper));
+    emscripten::function("meanShift", select_overload<emscripten::val(const cv::Mat&, Rect&, TermCriteria)>(&binding_utils::meanShiftWrapper));
 
     constant("CV_8UC1", CV_8UC1);
     constant("CV_8UC2", CV_8UC2);
@@ -559,4 +565,26 @@ EMSCRIPTEN_BINDINGS(binding_utils)
 
     constant("INT_MIN", INT_MIN);
     constant("INT_MAX", INT_MAX);
+
+    // ORB_SLAM2 bindings
+    constant("MONOCULAR", +System::MONOCULAR);
+    constant("STEREO", +System::STEREO);
+    constant("RGBD", +System::RGBD);
+
+    register_vector<cv::KeyPoint>("KeyPointVector");
+    register_vector<ORB_SLAM2::MapPoint*>("MapPointVector");
+
+    emscripten::class_<ORB_SLAM2::System>("SLAM")
+        .constructor(&binding_utils::createSystem)
+        .function("TrackStereo", &ORB_SLAM2::System::TrackStereo)
+        .function("TrackRGBD", &ORB_SLAM2::System::TrackRGBD)
+        .function("TrackMonocular", &ORB_SLAM2::System::TrackMonocular)
+        .function("ActivateLocalizationMode", &ORB_SLAM2::System::ActivateLocalizationMode)
+        .function("DeactivateLocalizationMode", &ORB_SLAM2::System::DeactivateLocalizationMode)
+        .function("MapChanged", &ORB_SLAM2::System::MapChanged)
+        .function("Reset", &ORB_SLAM2::System::Reset)
+        .function("Shutdown", &ORB_SLAM2::System::Shutdown)
+        .function("GetTrackingState", &ORB_SLAM2::System::GetTrackingState)
+        .function("GetTrackedMapPoints", &ORB_SLAM2::System::GetTrackedMapPoints)
+        .function("GetTrackedKeyPointsUn", &ORB_SLAM2::System::GetTrackedKeyPointsUn);
 }

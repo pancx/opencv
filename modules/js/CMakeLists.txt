@@ -12,7 +12,12 @@ set(OPENCV_JS "opencv.js")
 ocv_add_module(${MODULE_NAME} BINDINGS)
 
 # TODO: add emscripten path
-ocv_module_include_directories()
+ocv_module_include_directories(
+${CMAKE_CURRENT_SOURCE_DIR}/../orbslam2/include
+${CMAKE_CURRENT_SOURCE_DIR}/../orbslam2/
+${CMAKE_CURRENT_SOURCE_DIR}/../orbslam2/Thirdparty/g2o
+${CMAKE_CURRENT_SOURCE_DIR}/../orbslam2/Thirdparty/eigen
+)
 
 # get list of modules to wrap
 # message(STATUS "Wrapped in ${MODULE_NAME}:")
@@ -67,7 +72,8 @@ ocv_add_executable(${the_module} ${bindings_cpp})
 
 set_target_properties(${the_module} PROPERTIES COMPILE_FLAGS "-Wno-missing-prototypes")
 
-set_target_properties(${the_module} PROPERTIES LINK_FLAGS "--memory-init-file 0 -s TOTAL_MEMORY=134217728 -s ALLOW_MEMORY_GROWTH=1 -s MODULARIZE=1 -s EXPORT_NAME=\"'cv'\" -s DEMANGLE_SUPPORT=1 -s FORCE_FILESYSTEM=1 --use-preload-plugins --bind --post-js ${JS_HELPER} -Wno-missing-prototypes")
+set_target_properties(${the_module} PROPERTIES LINK_FLAGS "--memory-init-file 0 -s TOTAL_MEMORY=1073741824 -s ALLOW_MEMORY_GROWTH=1 -s MODULARIZE=1 -s EXPORT_NAME=\"'cv'\" -s DEMANGLE_SUPPORT=1 -s FORCE_FILESYSTEM=1 --use-preload-plugins --bind --post-js ${JS_HELPER} -Wno-missing-prototypes")
+set_target_properties(${the_module} PROPERTIES COMPILE_FLAGS "-Wno-non-virtual-dtor")
 
 # add UMD wrapper
 set(MODULE_JS_PATH "${OpenCV_BINARY_DIR}/bin/${the_module}.js")

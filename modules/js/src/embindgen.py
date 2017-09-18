@@ -135,7 +135,7 @@ def makeWhiteList(module_list):
                 wl[k] = m[k]
     return wl
 
-white_list = makeWhiteList([core, imgproc, objdetect, video])
+white_list = makeWhiteList([{'': []}])
 
 # Features to be exported
 export_enums = False

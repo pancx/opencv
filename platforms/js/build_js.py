@@ -148,7 +148,9 @@ class Builder:
                "-DBUILD_EXAMPLES=OFF",
                "-DBUILD_PACKAGE=OFF",
                "-DBUILD_TESTS=OFF",
-               "-DBUILD_PERF_TESTS=OFF"]
+               "-DBUILD_PERF_TESTS=OFF",
+               "-DCMAKE_C_FLAGS='-g4'",
+               "-DCMAKE_CXX_FLAGS='-g4'"]
         if self.options.build_doc:
             cmd.append("-DBUILD_DOCS=ON")
         else:

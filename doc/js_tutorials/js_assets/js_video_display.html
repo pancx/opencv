@@ -8,14 +8,18 @@
 <body>
 <h2>Video Capture Example</h2>
 <p>
-    Click <b>Start/Stop</b> button to start or stop the camera capture.<br>
+    Click <b>Start/Stop</b> button to start or stop the video capture.<br>
     The <b>videoInput</b> is a &lt;video&gt; element used as OpenCV.js input.
     The <b>canvasOutput</b> is a &lt;canvas&gt; element used as OpenCv.js output.<br>
+    The default video file is from <a href="https://www.mediawiki.org/wiki/MediaWiki" target="_blank">MediaWiki.org</a>.<br>
     The code of &lt;textarea&gt; will be executed when video is started.
     You can modify the code to investigate more.
 </p>
 <div>
-<div class="control"><button id="startAndStop" disabled>Start</button></div>
+<div class="control">
+    <button id="cameraStartAndStop" disabled>Start Camera</button>
+    <button id="videoStartAndStop" disabled>Start Video</button>
+</div>
 <textarea class="code" rows="29" cols="100" id="codeEditor" spellcheck="false">
 </textarea>
 </div>
@@ -24,7 +28,7 @@
     <table cellpadding="0" cellspacing="0" width="0" border="0">
     <tr>
         <td>
-            <video id="videoInput" width=320 height=240></video>
+            <video id="videoInput" width=320 height=240 crossorigin="anonymous"></video>
         </td>
         <td>
             <canvas id="canvasOutput" width=320 height=240></canvas>
@@ -55,7 +59,7 @@ let cap = new cv.VideoCapture(video);
 const FPS = 30;
 function processVideo() {
     try {
-        if (!streaming) {
+        if (!cameraStreaming && !videoStreaming) {
             // clean and stop.
             src.delete();
             dst.delete();
@@ -82,38 +86,74 @@ let utils = new Utils('errorMessage');
 
 utils.loadCode('codeSnippet', 'codeEditor');
 
-let streaming = false;
+let cameraStreaming = false;
+let videoStreaming = false;
 let videoInput = document.getElementById('videoInput');
-let startAndStop = document.getElementById('startAndStop');
+let cameraStartAndStop = document.getElementById('cameraStartAndStop');
+let videoStartAndStop = document.getElementById('videoStartAndStop');
 let canvasOutput = document.getElementById('canvasOutput');
 let canvasContext = canvasOutput.getContext('2d');
 
-startAndStop.addEventListener('click', () => {
-    if (!streaming) {
-        utils.clearError();
-        utils.startCamera('qvga', onVideoStarted, 'videoInput');
-    } else {
-        utils.stopCamera();
+cameraStartAndStop.addEventListener('click', () => {
+    if (!cameraStreaming) {
         onVideoStopped();
+        utils.clearError();
+        onCameraStopped();
+        utils.startCamera('qvga', onCameraStarted, 'videoInput');
+    } else {
+        onVideoStopped();
+        utils.stopCamera();
+        onCameraStopped();
     }
 });
-
-function onVideoStarted() {
-    streaming = true;
-    startAndStop.innerText = 'Stop';
+function onCameraStarted() {
+    cameraStreaming = true;
+    cameraStartAndStop.innerText = 'Stop Camera';
     videoInput.width = videoInput.videoWidth;
     videoInput.height = videoInput.videoHeight;
     utils.executeCode('codeEditor');
 }
-
-function onVideoStopped() {
-    streaming = false;
+function onCameraStopped() {
+    cameraStreaming = false;
     canvasContext.clearRect(0, 0, canvasOutput.width, canvasOutput.height);
-    startAndStop.innerText = 'Start';
+    cameraStartAndStop.innerText = 'Start Camera';
+}
+videoStartAndStop.addEventListener('click', () => {
+    if (!videoStreaming) {
+        utils.stopCamera();
+        onCameraStopped();
+        utils.clearError();
+        videoInput.play().then(() => {
+            onVideoStarted();
+        });
+    } else {
+        utils.stopCamera();
+        onCameraStopped();
+        videoInput.pause();
+        videoInput.currentTime = 0;
+        onVideoStopped();
+    }
+});
+function onVideoStarted() {
+    videoStreaming = true;
+    videoStartAndStop.innerText = 'Stop Video';
+    videoInput.width = 320;
+    videoInput.height = 180;
+    utils.executeCode('codeEditor');
+}
+function onVideoStopped() {
+    videoStreaming = false;
+    canvasContext.clearRect(0, 0, canvasOutput.width, canvasOutput.height);
+    videoStartAndStop.innerText = 'Start Video';
 }
 
 utils.loadOpenCv(() => {
-    startAndStop.removeAttribute('disabled');
+    cameraStartAndStop.removeAttribute('disabled');
+    videoInput.addEventListener('canplay', () => {
+        videoStartAndStop.removeAttribute('disabled');
+    });
+    videoInput.src = 'https://upload.wikimedia.org/wikipedia/commons/7/77/European_roe_deer_%28Capreolus_capreolus%29_in_Slovakia.webm';
+    videoInput.loop = true;
 });
 </script>
 </body>

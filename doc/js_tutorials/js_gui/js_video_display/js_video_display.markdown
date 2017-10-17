@@ -4,17 +4,17 @@ Getting Started with Videos {#tutorial_js_video_display}
 Goal
 ----
 
--   Learn to capture video from a camera and display it.
+-   Learn to capture video and display it.
 
-Capture video from camera
--------------------------
+Capture video
+-------------
 
 Often, we have to capture live stream with a camera. In OpenCV.js, we use [WebRTC](https://webrtc.org/)
 and HTML canvas element to implement this. Let's capture a video from the camera(built-in
 or a usb), convert it into grayscale video and display it.
 
 To capture a video, you need to add some HTML elements to the web page:
-- a &lt;video&gt; to display video from camera directly
+- a &lt;video&gt; to display video from camera or a video file
 - a &lt;canvas&gt; to transfer video to canvas ImageData frame-by-frame
 - another &lt;canvas&gt; to display the video OpenCV.js gets
 
@@ -34,9 +34,10 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: false })
 @note This function is unnecessary when you capture video from a video file. But notice that
 HTML video element only supports video formats of Ogg(Theora), WebM(VP8/VP9) or MP4(H.264).
 
-Playing video
--------------
-Now, the browser gets the camera stream. Then, we use CanvasRenderingContext2D.drawImage() method
+Play video
+----------
+
+Now, the browser gets the video stream. Then, we use CanvasRenderingContext2D.drawImage() method
 of the Canvas 2D API to draw video onto the canvas. Finally, we can use the method in @ref tutorial_js_image_display
  to read and display image in canvas. For playing video, cv.imshow() should be executed every delay
 milliseconds. We recommend setTimeout() method. And if the video is 30fps, the delay milliseconds
@@ -93,7 +94,7 @@ function processVideo() {
 setTimeout(processVideo, 0);
 @endcode
 
-@note Remember to delete src and dst after when stop.
+@note Remember to delete src and dst when stop.
 
 Try it
 ------

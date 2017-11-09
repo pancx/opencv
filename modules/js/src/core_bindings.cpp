@@ -150,6 +150,14 @@ namespace binding_utils
         obj.convertTo(m, rtype, alpha);
     }
 
+    void cvtColor_wrapper(const cv::Mat& arg1, cv::Mat& arg2, int arg3, int arg4) {
+        return cv::cvtColor(arg1, arg2, arg3, arg4);
+    }
+    
+    void cvtColor_wrapper_1(const cv::Mat& arg1, cv::Mat& arg2, int arg3) {
+        return cv::cvtColor(arg1, arg2, arg3);
+    }
+
     Size matSize(const cv::Mat& mat)
     {
         return mat.size();
@@ -307,7 +315,7 @@ namespace binding_utils
     }
 
     ORB_SLAM2::System* createSystem(const string &strVocFile, const string &strSettingsFile, const int sensor) {
-        return new ORB_SLAM2::System(strVocFile, strSettingsFile, System::eSensor(sensor));
+        return new ORB_SLAM2::System(strVocFile, strSettingsFile, System::eSensor(sensor), false);
     }
 }
 
@@ -520,6 +528,10 @@ EMSCRIPTEN_BINDINGS(binding_utils)
 
     emscripten::function("meanShift", select_overload<emscripten::val(const cv::Mat&, Rect&, TermCriteria)>(&binding_utils::meanShiftWrapper));
 
+    emscripten::function("cvtColor", select_overload<void(const cv::Mat&, cv::Mat&, int, int)>(&binding_utils::cvtColor_wrapper));
+
+    emscripten::function("cvtColor", select_overload<void(const cv::Mat&, cv::Mat&, int)>(&binding_utils::cvtColor_wrapper_1));
+
     constant("CV_8UC1", CV_8UC1);
     constant("CV_8UC2", CV_8UC2);
     constant("CV_8UC3", CV_8UC3);
@@ -586,5 +598,7 @@ EMSCRIPTEN_BINDINGS(binding_utils)
         .function("Shutdown", &ORB_SLAM2::System::Shutdown)
         .function("GetTrackingState", &ORB_SLAM2::System::GetTrackingState)
         .function("GetTrackedMapPoints", &ORB_SLAM2::System::GetTrackedMapPoints)
-        .function("GetTrackedKeyPointsUn", &ORB_SLAM2::System::GetTrackedKeyPointsUn);
+        .function("GetTrackedKeyPointsUn", &ORB_SLAM2::System::GetTrackedKeyPointsUn)
+        .function("GetKeyFramesInMap", &ORB_SLAM2::System::GetKeyFramesInMap)
+        .function("GetMapPointsInMap", &ORB_SLAM2::System::GetMapPointsInMap);
 }

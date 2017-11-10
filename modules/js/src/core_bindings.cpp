@@ -150,14 +150,6 @@ namespace binding_utils
         obj.convertTo(m, rtype, alpha);
     }
 
-    void cvtColor_wrapper(const cv::Mat& arg1, cv::Mat& arg2, int arg3, int arg4) {
-        return cv::cvtColor(arg1, arg2, arg3, arg4);
-    }
-    
-    void cvtColor_wrapper_1(const cv::Mat& arg1, cv::Mat& arg2, int arg3) {
-        return cv::cvtColor(arg1, arg2, arg3);
-    }
-
     Size matSize(const cv::Mat& mat)
     {
         return mat.size();
@@ -527,10 +519,6 @@ EMSCRIPTEN_BINDINGS(binding_utils)
     emscripten::function("CamShift", select_overload<emscripten::val(const cv::Mat&, Rect&, TermCriteria)>(&binding_utils::CamShiftWrapper));
 
     emscripten::function("meanShift", select_overload<emscripten::val(const cv::Mat&, Rect&, TermCriteria)>(&binding_utils::meanShiftWrapper));
-
-    emscripten::function("cvtColor", select_overload<void(const cv::Mat&, cv::Mat&, int, int)>(&binding_utils::cvtColor_wrapper));
-
-    emscripten::function("cvtColor", select_overload<void(const cv::Mat&, cv::Mat&, int)>(&binding_utils::cvtColor_wrapper_1));
 
     constant("CV_8UC1", CV_8UC1);
     constant("CV_8UC2", CV_8UC2);
